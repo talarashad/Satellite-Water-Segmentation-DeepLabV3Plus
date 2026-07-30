@@ -1,0 +1,6 @@
+flask
+torch
+segmentation-models-pytorch
+rasterio
+pillow
+numpy

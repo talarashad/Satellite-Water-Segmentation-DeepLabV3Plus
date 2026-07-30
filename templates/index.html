@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌊 Water Body Segmentation API</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        p.subtitle {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 2px dashed #0284c7;
+            border-radius: 12px;
+            padding: 25px;
+            background: rgba(14, 165, 233, 0.05);
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: #38bdf8;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #0284c7;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .file-label:hover {
+            background: #0369a1;
+        }
+
+        #file-name {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            word-break: break-all;
+        }
+
+        button.btn-submit {
+            width: 100%;
+            background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button.btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        #result {
+            margin-top: 30px;
+            display: none;
+        }
+
+        #result h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #cbd5e1;
+        }
+
+        .image-preview {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            max-width: 100%;
+        }
+
+        img {
+            width: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>🌊 Water Segmentation</h2>
+        <p class="subtitle">🛰️ 12-Channel Satellite Imagery Processing</p>
+
+        <form id="upload-form">
+            <div class="upload-area">
+                <label for="image-input" class="file-label">📁 Choose Multispectral Image</label>
+                <input type="file" id="image-input" name="file" accept=".tif,.tiff" required>
+                <div id="file-name">No file chosen (.tif / .tiff)</div>
+            </div>
+
+            <button type="submit" class="btn-submit">⚡ Generate Segmentation Mask</button>
+        </form>
+
+        <div id="result">
+            <h3>✨ Output Binary Mask</h3>
+            <div class="image-preview">
+                <img id="mask-image" src="" alt="Binary Mask Result">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('image-input');
+        const fileNameDiv = document.getElementById('file-name');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                fileNameDiv.textContent = "📌 Selected: " + this.files[0].name;
+            } else {
+                fileNameDiv.textContent = "No file chosen (.tif / .tiff)";
+            }
+        });
+
+        document.getElementById('upload-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!fileInput.files.length) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            const submitBtn = document.querySelector('.btn-submit');
+            submitBtn.textContent = '⏳ Processing Image...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const img = document.getElementById('mask-image');
+                    img.src = url;
+                    document.getElementById('result').style.display = 'block';
+                } else {
+                    alert('⚠️ Error processing image. Please check backend server.');
+                }
+            } catch (err) {
+                alert('⚠️ Connection failed.');
+            } finally {
+                submitBtn.textContent = '⚡ Generate Segmentation Mask';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+</html>
