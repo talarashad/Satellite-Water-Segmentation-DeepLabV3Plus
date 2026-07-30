@@ -89,6 +89,3 @@ Open your browser and navigate to http://127.0.0.1:5000.
 
 3.Test with Samples:
 Upload any satellite image from the inference_samples/ directory to generate and view predicted water segmentation masks in real time.
-
-##📈 Visual Results
-Below is a qualitative comparison on validation samples showing the Input RGB Image, Ground Truth Mask, and DeepLabV3+ Prediction:
