@@ -19,7 +19,10 @@ An end-to-end Deep Learning pipeline designed to segment water bodies from 12-ch
 * **Advanced Architecture**: Fine-tuning pretrained `DeepLabV3+` with a `ResNet-34` backbone.
 * **Interactive Web Deployment**: Integrated **Flask Web Application** to upload satellite images and generate real-time segmentation masks.
 ---
+## 📁 Dataset
 
+The dataset used in this project consists of 12-band Sentinel-2 multispectral satellite imagery for water body segmentation. 
+You can access and download the dataset here: [Download Dataset](https://drive.google.com/drive/folders/1GQss5oZhv-0dxoRtI5m_m_SPbm-E3vXJ?usp=drive_link)
 ## 📊 Model Evaluation & Performance Metrics
 
 Quantitative evaluation results of the fine-tuned **DeepLabV3+ (ResNet-34)** model on the validation dataset:
